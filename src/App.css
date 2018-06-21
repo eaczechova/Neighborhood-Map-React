@@ -24,47 +24,41 @@ body {
 .list {
   width: 100%;
   color: RGB(72, 77, 95);
+  height: 100vh;
+  overflow: scroll;
 }
 
-.list ul {
+.list .inner-list {
   list-style-type: none;
   margin: 0;
   padding: 0;
   text-align: center;
 }
 
-.list li {
+.list button {
+  display: block;
+  border: none;
+  margin: 0 auto;
   padding: 25px 0;
-  /* border-bottom: 1px solid lightgray; */
+  box-shadow: 0.5px 0.3px lightgray;
+  font-weight: 300;
+  width: 100%;
+  font-size: 17px;
+  border-bottom: 0.5px dotted lightgray;
+}
+
+.list button:first-child {
+  border-top: 1px solid RGB(72, 77, 95);
   box-shadow: 0.5px 0.3px lightgray;
 }
 
-.list li:first-child {
-  border-top: 1px solid RGB(72, 77, 95);
-  box-shadow: 0.5px 0.3px lightgray;
+.list-item:hover {
+  cursor: pointer;
 }
 
 .form {
   padding: 30px 0;
   text-align: center;
-}
-
-.input-field {
-  width: 200px;
-  height: 20px;
-  border-radius: 2px;
-}
-
-.submit-button {
-  margin-left: 20px;
-  border: none;
-  border-radius: 3px;
-  width: 80px;
-  height: 28px;
-  color: #fff;
-  background-color: RGB(14, 151, 224);
-  padding: 6px;
-  letter-spacing: 2px;
 }
 
 .map {
@@ -75,6 +69,42 @@ body {
 #map {
   width: 100%;
   height: 100%;
+}
+
+#myModal {
+    margin: 5% 0;
+    background-color: #fff;
+    color: RGB(31, 32, 35);
+    text-align: right;
+    pointer-events:none;
+}
+
+.restaurant-img {
+  width: 320px;
+  height: 200px;
+  margin: 0 auto;
+  display: block;
+  padding-top: 20px;
+  filter: grayscale(40%);
+}
+
+.restaurant-address, .restaurant-cuisines, .restaurant-rating {
+  width: 300px;
+  margin: 0 auto;
+  text-align: justify;
+  padding-top: 20px;
+  font-size: 14px;
+}
+
+.selector {
+  text-align: center;
+  margin: 0 auto;
+}
+
+.selector > select {
+  width: 200px;
+  height: 25px;
+  margin: 10px
 }
 
 /******* MEDIA QUERIES *******/
@@ -104,8 +134,8 @@ and (max-width:767px) {
   }
 
   .map {
-   width: 69%;
-   height: 100vh;
+    width: 69%;
+    height: 100vh;
   }
 
   .list li {
