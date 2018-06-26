@@ -1,99 +1,82 @@
-import React, { Component } from "react";
-import "./App.css";
-import Header from "./Header";
-import List from "./List";
-import Map from "./Map";
+import React, { Component } from 'react';
+import './App.css';
+import Header from './Header';
+import List from './List';
+import Map from './Map';
 
 class App extends Component {
   state = {
-    map: "",
-    places: "",
-    isLoaded: false,
+    map: '',
+    info: '',
+    places: '',
+    loading: true,
+    flag: false,
+    selection: false,
     markers: [
         { lat: 52.2694760000,
           lng: 20.9853330000,
           name: "Jaskółka",
-          address: "Plac Wilsona 4, Żoliborz, Warszawa",
-          rating: "4.0",
         },
         { lat: 52.2683910000,
           lng: 20.9806220000,
           name: "Kotłownia",
-          address: "Plac Wilsona 4, Żoliborz, Warszawa",
-          rating: "4.0",
         },
         { lat: 52.2620550398,
           lng: 20.9807009557,
           name: "Ulica Baśniowa",
-          address: "Aleja Wojska Polskiego 41, Żoliborz, Warszawa",
-          rating: "4.3",
         },
         { lat: 52.2700630244,
           lng: 20.9822780639,
           name: "Thai Garden",
-          address: "",
-          rating: "4.0",
         },
         { lat: 52.2667160000,
           lng: 20.9904110000,
           name: "Dom",
-          address: "Mierosławskiego 12, Żoliborz, Warszawa",
-          rating: "3.8",
         },
         { lat: 52.2657583333,
           lng: 20.9746805556,
           name: "Burgerownia",
-          address: "Krasińskiego 24, Żoliborz, Warszawa",
-          rating: "3.7",
         },
         { lat: 52.2722055556,
           lng: 20.9737750000,
           name: "Po Byku",
-          address: "Gdańska 1, Żoliborz, Warszawa",
-          rating: "3.6",
         },
         { lat: 52.2696570000,
           lng: 20.9795390000,
           name: "Secret Life Cafe",
-          address: "Słowackiego 15/19, Żoliborz, Warszawa",
-          rating: "3.9",
         },
         { lat: 52.2618020000,
           lng: 20.9924350000,
           name: "El Caribe",
-          address: "Mickiewicza 9, Żoliborz, Warszawa",
-          rating: "3.6",
         },
       ],
-      locations: [],
-      error: null,
+
+      selectedLocation: [
+        { lat: 52.2694760000,
+          lng: 20.9853330000,
+          name: "Jaskółka",
+        },
+    ],
   };
 
-  /* uses code from  React documentation https://reactjs.org/docs/faq-ajax.html */
-  
   componentDidMount() {
     window.initMap = this.initMap;
-
-      fetch("https://developers.zomato.com/api/v2.1/geocode?lat=52.268833&lon=20.986484", {
+      fetch('https://developers.zomato.com/api/v2.1/geocode?lat=52.268833&lon=20.986484', {
         headers: {
-          "user-key": "0744018f22b80e8996e37c108b85cc58"
+          'user-key': '0744018f22b80e8996e37c108b85cc58'
       }})
       .then(response => response.json())
-      .then((responseData) => {
-            this.setState({ places: responseData, isLoaded: true });
-
-        },
-        (error) => {
-          this.setState({
-            isLoaded: true,
-            error
-          });
-        }
-      )
+      .then(responseData => {
+            this.setState({ places: responseData, loading: false });
+            this.storeData();
+        })
+      .catch(error => this.setState({ error }));
   }
 
   initMap = () => {
+
     /* uses code from https://snazzymaps.com/style/151/ultra-light-with-labels website */
+
     let styles =
     [
       {
@@ -273,81 +256,87 @@ class App extends Component {
     ];
 
     let map;
-    map = new window.google.maps.Map(document.getElementById("map"), {
+    map = new window.google.maps.Map(document.getElementById('map'), {
       center: { lat: 52.268833, lng: 20.986484 },
       zoom: 15,
       styles: styles,
     });
+    this.setState({ map });
 
-    this.setState({ map: map });
-    this.createMarkers(map);
-  }
-
-  createMarkers = (map) => {
-    this.state.markers.map(loc => {
+    this.state.markers.map( loc => {
       const latLng = { lat: loc.lat, lng: loc.lng }
-      let marker = new window.google.maps.Marker({
+        let marker = new window.google.maps.Marker({
         position: latLng,
         map: map,
         title: loc.name,
         animation: window.google.maps.Animation.DROP,
-        visible: true,
       });
 
-      this.state.locations.push(marker)
-
-      marker.addListener("click", function() {
+      marker.addListener('click', function() {
         infoWindow.open(map, marker);
       });
 
       let infoWindow = new window.google.maps.InfoWindow({
-        content: `<h3>${loc.name}</h3>
-                  <p>${loc.address}</p>
-                  <p>Rating: ${loc.rating}</p>`,
+        content: '<strong>'+loc.name+'</strong>',
       });
-    })
-  }
 
-  updateMarkers = (data) => {
-    const test = [];
-    const location = this.state.locations;
-    location.forEach( function(loc) {
-      if (loc.title.indexOf(data) >= 0) {
-        loc.setVisible(true);
-        loc.setAnimation(window.google.maps.Animation.BOUNCE);
-        setTimeout(() => {loc.setAnimation(null);}, 1200)
-        test.push(loc);
-      } else {
-        loc.setVisible(false);
-      }
-    });
-    this.setState({ location: test });
-  }
+    })
+      // this.state.selectedLocation.map( loc => {
+      //   const latLng = { lat: loc.lat, lng: loc.lng }
+      //     let marker = new window.google.maps.Marker({
+      //     position: latLng,
+      //     map: map,
+      //     title: loc.name,
+      //     animation: window.google.maps.Animation.DROP,
+      //   });
+      //
+      //   marker.addListener('click', function() {
+      //     infoWindow.open(map, marker);
+      //   });
+      //
+      //   let infoWindow = new window.google.maps.InfoWindow({
+      //     content: '<strong>'+loc.name+'</strong>',
+      //   });
+      //
+      // })
+   }
+
+   filterMarkers = (data) => {
+     let originalMarkersList = this.state.markers;
+     console.log("Original markers array:", this.state.markers);
+     console.log("Data selected from the dropdown menu:", data);
+     console.log("Original selectedLocation array:", this.state.selectedLocation);
+     let test = this.state.markers.filter( marker => marker.name === data);
+     console.log("Filtered markers array", test);
+     this.setState({ selectedLocation: test });
+     console.log("After setState on selectedLocation:", this.state.selectedLocation); }
+
 
   displayModal = (e) => {
     let element = e.target.firstElementChild;
-      if (element.style.display === "none") {
-        element.style.display = "block";
+      if (element.style.display === 'none') {
+        element.style.display = 'block';
       } else {
-        element.style.display = "none";
+        element.style.display = 'none';
       }
   }
 
   render() {
-
     return (
       <main>
         <Header />
         <div className="main-content">
-          <Map
-          />
           <List
             places={this.state.places}
-            isLoaded={this.state.isLoaded}
+            loading={this.state.loading}
             displayModal={this.displayModal}
-            updateMarkers={this.updateMarkers}
-            error={this.error}
+            handleChange={this.handleChange}
+            value={this.value}
+            selection={this.selection}
+            filterMarkers={this.filterMarkers}
+            selectedMarker={this.selectedMarker}
           />
+          <Map />
         </div>
       </main>
     );

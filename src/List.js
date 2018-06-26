@@ -7,30 +7,29 @@ class List extends Component {
   }
 
   render() {
-    const { displayModal, places, loading, value, filterMarkers } = this.props;
-
-    // this.keyboardHandler = (event) => {
-    //   if((event.keyCode == 13) || (event.keyCode== 32)) {
-    //   displayModal;
-    //   }
-    // }
+    const { displayModal, places, isLoaded, updateMarkers, error } = this.props;
 
     this.handleChange = (e) => {
       this.setState({ selectedValue: e.target.value });
-      this.setState({ value: e.target.value });
-      filterMarkers();
-      console.log("value:", value);
+      this.setState({ selection: true});
+      updateMarkers(e.target.value);
     }
-
+    if(error) {
+       return <div>Error: {error.message}</div>;
+    } else if (!isLoaded) {
+      return <div style={{padding:"15px"}}>Loading...</div>;
+    } else {
     return(
+
       <div className="list" role="complementary">
+
         <div className="selector">
           <select role="menu"
             onChange={this.handleChange}
-            tabindex="0"
+            tabIndex="0"
           >
             <option value=""></option>
-            {loading === false ?
+            {isLoaded ?
               places.nearby_restaurants.map( info => (
                 <option value={info.restaurant.name} key={info.restaurant.id }>{info.restaurant.name}</option>
               )) : <option value=""></option>
@@ -38,10 +37,10 @@ class List extends Component {
           </select>
         </div>
         <div className="inner-list">
-          {loading === false ?
+          {isLoaded ?
             ( this.state.selectedValue === "" ?
               places.nearby_restaurants.map( info => (
-              <button className="list-item" tabindex="0" role="presentation"
+              <button className="list-item" tabIndex="0" role="presentation"
                 key={ info.restaurant.id }
                 onClick={displayModal}
               >
@@ -54,7 +53,7 @@ class List extends Component {
                 </div>
               </button> )
               ) : places.nearby_restaurants.filter(info => info.restaurant.name === this.state.selectedValue).map( info => (
-              <button className="list-item" tabindex="0" role="presentation"
+              <button className="list-item" tabIndex="0" role="presentation"
                 key={info.restaurant.id}
                 onClick={displayModal}
               >
@@ -71,7 +70,7 @@ class List extends Component {
         </div>
       </div>
     )
-  }
+  }}
 }
 
 export default List;
