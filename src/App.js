@@ -67,27 +67,23 @@ class App extends Component {
       ],
       locations: [],
       error: null,
+      infoWindow: '',
   };
 
   /* uses code from  React documentation https://reactjs.org/docs/faq-ajax.html */
-  
+
   componentDidMount() {
     window.initMap = this.initMap;
-
+    createGoogleMapLink("https://maps.googleapis.com/maps/api/js?key=AIzaSyBzwLWGHmstGUGzSnH9OBOYsB1IqOrgE-M&v=3&callback=initMap")
       fetch("https://developers.zomato.com/api/v2.1/geocode?lat=52.268833&lon=20.986484", {
         headers: {
           "user-key": "0744018f22b80e8996e37c108b85cc58"
       }})
-      .then(response => response.json())
-      .then((responseData) => {
-            this.setState({ places: responseData, isLoaded: true });
-
-        },
-        (error) => {
-          this.setState({
-            isLoaded: true,
-            error
-          });
+      .then(res => res.json())
+      .catch(error => { this.setState({ infoWindow: error });
+        alert('Error:', this.state.error)})
+      .then(response => {
+            this.setState({ places: response, isLoaded: true });
         }
       )
   }
@@ -306,9 +302,11 @@ class App extends Component {
                   <p>Rating: ${loc.rating}</p>`,
       });
     })
+
   }
 
   updateMarkers = (data) => {
+
     const test = [];
     const location = this.state.locations;
     location.forEach( function(loc) {
@@ -334,13 +332,11 @@ class App extends Component {
   }
 
   render() {
-
     return (
       <main>
         <Header />
         <div className="main-content">
-          <Map
-          />
+          <Map />
           <List
             places={this.state.places}
             isLoaded={this.state.isLoaded}
@@ -355,3 +351,14 @@ class App extends Component {
 }
 
 export default App;
+
+function createGoogleMapLink(url) {
+    let tag = window.document.getElementsByTagName('script')[0];
+    let script = window.document.createElement('script');
+    script.src = url;
+    script.async = true;
+    script.onerror = function () {
+        document.write("We are sorry, but Google Maps can't be loaded.");
+    };
+    tag.parentNode.insertBefore(script, tag);
+}

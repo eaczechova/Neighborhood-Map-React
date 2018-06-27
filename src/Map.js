@@ -5,7 +5,7 @@ class Map extends Component {
     return (
       <div className="map">
         <div id="map" role="application">
-        
+
         </div>
       </div>
     )
