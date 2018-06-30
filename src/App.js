@@ -6,329 +6,124 @@ import Map from "./Map";
 
 class App extends Component {
   state = {
+    markers: require("./originalmarkers.json"), // get all loactions stored in json file
     map: "",
-    places: "",
+    infoWindow: "",
+    locations: [],
     isLoaded: false,
-    markers: [
-        { lat: 52.2694760000,
-          lng: 20.9853330000,
-          name: "Jaskółka",
-          address: "Plac Wilsona 4, Żoliborz, Warszawa",
-          rating: "4.0",
-        },
-        { lat: 52.2683910000,
-          lng: 20.9806220000,
-          name: "Kotłownia",
-          address: "Plac Wilsona 4, Żoliborz, Warszawa",
-          rating: "4.0",
-        },
-        { lat: 52.2620550398,
-          lng: 20.9807009557,
-          name: "Ulica Baśniowa",
-          address: "Aleja Wojska Polskiego 41, Żoliborz, Warszawa",
-          rating: "4.3",
-        },
-        { lat: 52.2700630244,
-          lng: 20.9822780639,
-          name: "Thai Garden",
-          address: "",
-          rating: "4.0",
-        },
-        { lat: 52.2667160000,
-          lng: 20.9904110000,
-          name: "Dom",
-          address: "Mierosławskiego 12, Żoliborz, Warszawa",
-          rating: "3.8",
-        },
-        { lat: 52.2657583333,
-          lng: 20.9746805556,
-          name: "Burgerownia",
-          address: "Krasińskiego 24, Żoliborz, Warszawa",
-          rating: "3.7",
-        },
-        { lat: 52.2722055556,
-          lng: 20.9737750000,
-          name: "Po Byku",
-          address: "Gdańska 1, Żoliborz, Warszawa",
-          rating: "3.6",
-        },
-        { lat: 52.2696570000,
-          lng: 20.9795390000,
-          name: "Secret Life Cafe",
-          address: "Słowackiego 15/19, Żoliborz, Warszawa",
-          rating: "3.9",
-        },
-        { lat: 52.2618020000,
-          lng: 20.9924350000,
-          name: "El Caribe",
-          address: "Mickiewicza 9, Żoliborz, Warszawa",
-          rating: "3.6",
-        },
-      ],
-      locations: [],
-      error: null,
-      infoWindow: '',
   };
-
-  /* uses code from  React documentation https://reactjs.org/docs/faq-ajax.html */
 
   componentDidMount() {
     window.initMap = this.initMap;
-    createGoogleMapLink("https://maps.googleapis.com/maps/api/js?key=AIzaSyBzwLWGHmstGUGzSnH9OBOYsB1IqOrgE-M&v=3&callback=initMap")
-      fetch("https://developers.zomato.com/api/v2.1/geocode?lat=52.268833&lon=20.986484", {
-        headers: {
-          "user-key": "0744018f22b80e8996e37c108b85cc58"
-      }})
-      .then(res => res.json())
-      .catch(error => { this.setState({ infoWindow: error });
-        alert('Error:', this.state.error)})
-      .then(response => {
-            this.setState({ places: response, isLoaded: true });
-        }
-      )
+    createGoogleMapLink(
+      "https://maps.googleapis.com/maps/api/js?key=AIzaSyBzwLWGHmstGUGzSnH9OBOYsB1IqOrgE-M&v=3&callback=initMap"
+    );
+
+    fetch("https://developers.zomato.com/api/v2.1/geocode?lat=52.268833&lon=20.986484", {
+      headers: {
+        "user-key": "0744018f22b80e8996e37c108b85cc58"
+    }})
+    .then(res => res.json())
+    .catch(error => { this.setState({ infoWindow: error });
+      alert("Error:", error)})
+    .then(response => {
+      this.setState({ places: response, isLoaded: true });
+    })
   }
 
+  // Initialize map once GoogleMap API is loaded
+
   initMap = () => {
-    /* uses code from https://snazzymaps.com/style/151/ultra-light-with-labels website */
-    let styles =
-    [
-      {
-        "featureType": "water",
-        "elementType": "geometry",
-        "stylers": [
-          {
-            "color": "#e9e9e9"
-          },
-          {
-            "lightness": 17
-          }
-        ]
-      },
-      {
-        "featureType": "landscape",
-        "elementType": "geometry",
-        "stylers": [
-          {
-            "color": "#f5f5f5"
-          },
-          {
-            "lightness": 20
-          }
-        ]
-      },
-      {
-        "featureType": "road.highway",
-        "elementType": "geometry.fill",
-        "stylers": [
-          {
-            "color": "#ffffff"
-          },
-          {
-            "lightness": 17
-          }
-        ]
-      },
-      {
-        "featureType": "road.highway",
-        "elementType": "geometry.stroke",
-        "stylers": [
-          {
-            "color": "#ffffff"
-          },
-          {
-            "lightness": 29
-          },
-          {
-            "weight": 0.2
-          }
-        ]
-      },
-      {
-        "featureType": "road.arterial",
-        "elementType": "geometry",
-        "stylers": [
-          {
-            "color": "#ffffff"
-          },
-          {
-            "lightness": 18
-          }
-        ]
-      },
-      {
-        "featureType": "road.local",
-        "elementType": "geometry",
-        "stylers": [
-          {
-            "color": "#ffffff"
-          },
-          {
-            "lightness": 16
-          }
-        ]
-      },
-      {
-          "featureType": "poi",
-          "elementType": "geometry",
-          "stylers": [
-            {
-              "color": "#f5f5f5"
-            },
-            {
-              "lightness": 21
-            }
-          ]
-      },
-      {
-        "featureType": "poi.park",
-        "elementType": "geometry",
-        "stylers": [
-          {
-            "color": "#dedede"
-          },
-          {
-            "lightness": 21
-          }
-        ]
-      },
-      {
-        "elementType": "labels.text.stroke",
-        "stylers": [
-          {
-            "visibility": "on"
-          },
-          {
-            "color": "#ffffff"
-          },
-          {
-            "lightness": 16
-          }
-        ]
-      },
-      {
-        "elementType": "labels.text.fill",
-        "stylers": [
-          {
-            "saturation": 36
-          },
-          {
-            "color": "#333333"
-          },
-          {
-           "lightness": 40
-          }
-        ]
-      },
-      {
-        "elementType": "labels.icon",
-        "stylers": [
-          {
-            "visibility": "off"
-          }
-        ]
-      },
-      {
-        "featureType": "transit",
-        "elementType": "geometry",
-        "stylers": [
-          {
-            "color": "#f2f2f2"
-          },
-          {
-            "lightness": 19
-          }
-        ]
-      },
-      {
-        "featureType": "administrative",
-        "elementType": "geometry.fill",
-        "stylers": [
-          {
-            "color": "#fefefe"
-          },
-          {
-            "lightness": 20
-          }
-        ]
-      },
-      {
-        "featureType": "administrative",
-        "elementType": "geometry.stroke",
-        "stylers": [
-          {
-            "color": "#fefefe"
-          },
-          {
-            "lightness": 17
-          },
-          {
-            "weight": 1.2
-          }
-        ]
-      }
-    ];
-
     let map;
-    map = new window.google.maps.Map(document.getElementById("map"), {
-      center: { lat: 52.268833, lng: 20.986484 },
-      zoom: 15,
-      styles: styles,
-    });
+      map = new window.google.maps.Map(document.getElementById("map"), {
+        center: { lat: 52.268833, lng: 20.986484 },
+        zoom: 15,
+        styles: require("./styles.json"), //uses style from https://snazzymaps.com/style/151/ultra-light-with-labels website
+      });
 
-    this.setState({ map: map });
+    let info = new window.google.maps.InfoWindow({});
+    this.setState({map, infoWindow: info});
     this.createMarkers(map);
   }
 
+  // Create markers function invoked once map is initiliazed
+
   createMarkers = (map) => {
-    this.state.markers.map(loc => {
-      const latLng = { lat: loc.lat, lng: loc.lng }
-      let marker = new window.google.maps.Marker({
+    let self = this;
+    this.state.markers.map(marker => {
+      const latLng = { lat: marker.lat, lng: marker.lng }
+      let flag = new window.google.maps.Marker({
         position: latLng,
         map: map,
-        title: loc.name,
+        title: marker.name,
         animation: window.google.maps.Animation.DROP,
         visible: true,
       });
 
-      this.state.locations.push(marker)
-
-      marker.addListener("click", function() {
-        infoWindow.open(map, marker);
+      flag.addListener("click", function() {
+        self.openMarker(flag);
       });
 
-      let infoWindow = new window.google.maps.InfoWindow({
-        content: `<h3>${loc.name}</h3>
-                  <p>${loc.address}</p>
-                  <p>Rating: ${loc.rating}</p>`,
+      let location = this.state.locations;
+      location.push(flag);
+      this.setState({ locations: location });
+    });
+  }
+
+  /*
+    Function opens marker's infowindow once clicked, uses selected marker's
+    latlng information to created api url used to get loaction info;
+  */
+
+  openMarker = (marker) => {
+
+      const url = `https://developers.zomato.com/api/v2.1/geocode?lat=${marker.getPosition().lat()}&lon=${marker.getPosition().lng()}`;
+      const config = {headers: { "user-key": "0744018f22b80e8996e37c108b85cc58" }};
+
+      if (this.state.infoWindow.marker !== marker) {
+          this.state.infoWindow.marker = marker;
+          this.state.infoWindow.open(this.state.map, marker);
+
+          marker.setAnimation(window.google.maps.Animation.BOUNCE);
+          setTimeout(() => { marker.setAnimation(null) }, 600)
+
+          this.state.infoWindow.addListener("closeClick", function () {
+            this.state.infoWindow.setVisible(false);
+          });
+          this.markerInformation(url, config);
+      }
+  }
+
+  /*
+    Function fetches data from Zomato API based on selected marker title and creates infoWindow content;
+    function checks that the fetch was successful https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+  */
+
+  markerInformation = (url, config) => {
+    let self = this.state.infoWindow;
+    fetch(url, config)
+    .then(function (resp) {
+      if (resp.status !== 200) {
+        const error = "Data cannot be loaded - the response was not successfu.";
+          this.state.infoWindow.setContent(error);
+      }
+      resp.json().then(function (data) {
+        const start = data.nearby_restaurants;
+          let info = start.filter(info => info.restaurant.name === self.marker.title)
+            .map(info => (
+              `<h3><b>${info.restaurant.name}</b></h3>
+               <p><b>Adderess:</b> ${info.restaurant.location.address}</p>
+               <p><b>Cuisines:</b> ${info.restaurant.cuisines}</p>
+               <p><b>Raitng:</b> ${info.restaurant.user_rating.aggregate_rating}</p>`
+            ));
+            const [content] = info;
+            self.setContent(content);
       });
     })
-
-  }
-
-  updateMarkers = (data) => {
-
-    const test = [];
-    const location = this.state.locations;
-    location.forEach( function(loc) {
-      if (loc.title.indexOf(data) >= 0) {
-        loc.setVisible(true);
-        loc.setAnimation(window.google.maps.Animation.BOUNCE);
-        setTimeout(() => {loc.setAnimation(null);}, 1200)
-        test.push(loc);
-      } else {
-        loc.setVisible(false);
-      }
+    .catch(function (err) {
+      const error = "Data cannot be loaded.";
+      self.setContent(error);
     });
-    this.setState({ location: test });
-  }
-
-  displayModal = (e) => {
-    let element = e.target.firstElementChild;
-      if (element.style.display === "none") {
-        element.style.display = "block";
-      } else {
-        element.style.display = "none";
-      }
   }
 
   render() {
@@ -340,9 +135,8 @@ class App extends Component {
           <List
             places={this.state.places}
             isLoaded={this.state.isLoaded}
-            displayModal={this.displayModal}
-            updateMarkers={this.updateMarkers}
-            error={this.error}
+            openMarker={this.openMarker}
+            locations={this.state.locations}
           />
         </div>
       </main>
@@ -352,9 +146,11 @@ class App extends Component {
 
 export default App;
 
+// Handles GoogleMap Link in async manner, handles script errors if occures
+
 function createGoogleMapLink(url) {
-    let tag = window.document.getElementsByTagName('script')[0];
-    let script = window.document.createElement('script');
+    let tag = window.document.getElementsByTagName("script")[0];
+    let script = window.document.createElement("script");
     script.src = url;
     script.async = true;
     script.onerror = function () {
