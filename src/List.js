@@ -6,71 +6,66 @@ class List extends Component {
     selectedValue: "",
   }
 
+  //Filter markers based on value slected from the dropdown menu
+
+  updateMarkers = (data) => {
+    const selectedLocation = [];
+    const location = this.props.locations;
+    location.forEach( function(loc) {
+
+      if (loc.title.indexOf(data) >= 0) {
+        loc.setVisible(true);
+        loc.setAnimation(window.google.maps.Animation.BOUNCE);
+        setTimeout(() => {loc.setAnimation(null);}, 1200)
+        selectedLocation.push(loc);
+      } else {
+        loc.setVisible(false);
+      }
+    });
+    this.setState({ location: selectedLocation });
+  }
+
   render() {
-    const { displayModal, places, isLoaded, updateMarkers, error } = this.props;
+
+    const { locations, isLoaded, openMarker } = this.props;
+
+    //Gets value of selected location and passes it to markers filtering function
 
     this.handleChange = (e) => {
       this.setState({ selectedValue: e.target.value });
-      this.setState({ selection: true});
-      updateMarkers(e.target.value);
+      this.updateMarkers(e.target.value);
     }
-    if(error) {
-       return <div>Error: {error.message}</div>;
-    } else if (!isLoaded) {
-      return <div style={{padding:"15px"}}>Loading...</div>;
-    } else {
+
     return(
-
       <div className="list" role="complementary">
-
         <div className="selector">
           <select role="menu"
             onChange={this.handleChange}
-            tabIndex="0"
-          >
+            tabIndex="0">
             <option value=""></option>
             {isLoaded ?
-              places.nearby_restaurants.map( info => (
-                <option value={info.restaurant.name} key={info.restaurant.id }>{info.restaurant.name}</option>
-              )) : <option value=""></option>
-            }
+              locations.map((info,i) => (
+                <option key={i} value={info.title}>{info.title}</option>
+            )) : <option value=""></option>}
           </select>
         </div>
         <div className="inner-list">
-          {isLoaded ?
-            ( this.state.selectedValue === "" ?
-              places.nearby_restaurants.map( info => (
-              <button className="list-item" tabIndex="0" role="presentation"
-                key={ info.restaurant.id }
-                onClick={displayModal}
-              >
-                {info.restaurant.name}
-                <div style={{display:"none"}} id="myModal" >
-                  <img className="restaurant-img" src={info.restaurant.featured_image} alt="restaurant cuisine"/>
-                  <p className="restaurant-address"><strong>Address:</strong> {info.restaurant.location.address}</p>
-                  <p className="restaurant-cuisines"><strong>Cuisines:</strong> {info.restaurant.cuisines}</p>
-                  <p className="restaurant-rating"><strong>Rating:</strong> {info.restaurant.user_rating.aggregate_rating}</p>
-                </div>
-              </button> )
-              ) : places.nearby_restaurants.filter(info => info.restaurant.name === this.state.selectedValue).map( info => (
-              <button className="list-item" tabIndex="0" role="presentation"
-                key={info.restaurant.id}
-                onClick={displayModal}
-              >
-                {info.restaurant.name}
-                <div style={{display:"none"}} id="myModal">
-                  <img className="restaurant-img" src={info.restaurant.featured_image} alt="restaurant cuisine"/>
-                  <p className="restaurant-address"><strong>Address:</strong> {info.restaurant.location.address}</p>
-                  <p className="restaurant-cuisines"><strong>Cuisines:</strong> {info.restaurant.cuisines}</p>
-                  <p className="restaurant-rating"><strong>Rating:</strong> {info.restaurant.user_rating.aggregate_rating}</p>
-                </div>
-              </button>)
-            )) : <li></li>
-          }
-        </div>
+         {isLoaded ?
+           (this.state.selectedValue === "" ?
+             locations.map((info,i) => (
+             <button key={i} className="list-item" tabIndex="0" role="presentation" onClick={() => openMarker(info)}>
+               {info.title}
+             </button>)
+            ) : locations.filter(info => info.title === this.state.selectedValue).map((info,i) => (
+             <button key={i} className="list-item" tabIndex="0" role="presentation" onClick={() => openMarker(info)}>
+              {info.title}
+            </button>)
+           )) : <li></li>
+         }
+       </div>
       </div>
     )
-  }}
+  }
 }
 
 export default List;
