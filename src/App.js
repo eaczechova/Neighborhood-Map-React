@@ -77,22 +77,27 @@ class App extends Component {
 
   openMarker = (marker) => {
 
+      let self = this;
+
       const url = `https://developers.zomato.com/api/v2.1/geocode?lat=${marker.getPosition().lat()}&lon=${marker.getPosition().lng()}`;
       const config = {headers: { "user-key": "0744018f22b80e8996e37c108b85cc58" }};
 
       if (this.state.infoWindow.marker !== marker) {
-          this.state.infoWindow.marker = marker;
-          this.state.infoWindow.open(this.state.map, marker);
 
-          marker.setAnimation(window.google.maps.Animation.BOUNCE);
-          setTimeout(() => { marker.setAnimation(null) }, 600)
+        this.state.infoWindow.marker = marker;
+        // console.log("1:", this.state.infoWindow.marker);
 
-          this.state.infoWindow.addListener("closeClick", function () {
-            this.state.infoWindow.setVisible(false);
-          });
-          this.markerInformation(url, config);
-      }
-  }
+        this.state.infoWindow.open(this.state.map, marker);
+
+        marker.setAnimation(window.google.maps.Animation.BOUNCE);
+        setTimeout(() => { marker.setAnimation(null) }, 600)
+
+        this.state.infoWindow.addListener("closeClick", function () {
+          this.state.infoWindow.setVisible(false);
+        });
+
+        this.markerInformation(url, config);
+  }}
 
   /*
     Function fetches data from Zomato API based on selected marker title and creates infoWindow content;
@@ -100,14 +105,14 @@ class App extends Component {
   */
 
   markerInformation = (url, config) => {
+
     let self = this.state.infoWindow;
+
+    self.setContent("Loading...");
+
     fetch(url, config)
-    .then(function (resp) {
-      if (resp.status !== 200) {
-        const error = "Data cannot be loaded - the response was not successfu.";
-          this.state.infoWindow.setContent(error);
-      }
-      resp.json().then(function (data) {
+    .then(response => response.json())
+    .then( data => {
         const start = data.nearby_restaurants;
           let info = start.filter(info => info.restaurant.name === self.marker.title)
             .map(info => (
@@ -118,9 +123,8 @@ class App extends Component {
             ));
             const [content] = info;
             self.setContent(content);
-      });
-    })
-    .catch(function (err) {
+      })
+    .catch(err => {
       const error = "Data cannot be loaded.";
       self.setContent(error);
     });
