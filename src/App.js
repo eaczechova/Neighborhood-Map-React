@@ -42,7 +42,7 @@ class App extends Component {
       });
 
     let info = new window.google.maps.InfoWindow({});
-    this.setState({map, infoWindow: info});
+    this.setState({ map, infoWindow: info });
     this.createMarkers(map);
   }
 
@@ -77,27 +77,23 @@ class App extends Component {
 
   openMarker = (marker) => {
 
-      let self = this;
+    const url = `https://developers.zomato.com/api/v2.1/geocode?lat=${marker.getPosition().lat()}&lon=${marker.getPosition().lng()}`;
+    const config = {headers: { "user-key": "0744018f22b80e8996e37c108b85cc58" }};
 
-      const url = `https://developers.zomato.com/api/v2.1/geocode?lat=${marker.getPosition().lat()}&lon=${marker.getPosition().lng()}`;
-      const config = {headers: { "user-key": "0744018f22b80e8996e37c108b85cc58" }};
+    if (this.state.infoWindow.marker !== marker) {
 
-      if (this.state.infoWindow.marker !== marker) {
-
-        this.state.infoWindow.marker = marker;
-        // console.log("1:", this.state.infoWindow.marker);
-
-        this.state.infoWindow.open(this.state.map, marker);
-
-        marker.setAnimation(window.google.maps.Animation.BOUNCE);
-        setTimeout(() => { marker.setAnimation(null) }, 600)
-
-        this.state.infoWindow.addListener("closeClick", function () {
-          this.state.infoWindow.setVisible(false);
-        });
-
-        this.markerInformation(url, config);
-  }}
+      let newInfoWindow = Object.assign(this.state.infoWindow, {}); // auxiliary variable that adds new nested object
+      newInfoWindow.marker = marker; // assign key-value pair
+      this.setState({infoWindow: newInfoWindow});
+      this.state.infoWindow.open(this.state.map, marker);
+      marker.setAnimation(window.google.maps.Animation.BOUNCE);
+      setTimeout(() => { marker.setAnimation(null) }, 600)
+      this.state.infoWindow.addListener("closeClick", function () {
+      this.state.infoWindow.setVisible(false);
+      });
+      this.markerInformation(url, config);
+    }
+  }
 
   /*
     Function fetches data from Zomato API based on selected marker title and creates infoWindow content;
@@ -113,16 +109,16 @@ class App extends Component {
     fetch(url, config)
     .then(response => response.json())
     .then( data => {
-        const start = data.nearby_restaurants;
-          let info = start.filter(info => info.restaurant.name === self.marker.title)
-            .map(info => (
-              `<h3><b>${info.restaurant.name}</b></h3>
-               <p><b>Adderess:</b> ${info.restaurant.location.address}</p>
-               <p><b>Cuisines:</b> ${info.restaurant.cuisines}</p>
-               <p><b>Raitng:</b> ${info.restaurant.user_rating.aggregate_rating}</p>`
-            ));
-            const [content] = info;
-            self.setContent(content);
+      const start = data.nearby_restaurants;
+      let info = start.filter(info => info.restaurant.name === self.marker.title)
+      .map(info => (
+          `<h3><b>${info.restaurant.name}</b></h3>
+          <p><b>Adderess:</b> ${info.restaurant.location.address}</p>
+          <p><b>Cuisines:</b> ${info.restaurant.cuisines}</p>
+          <p><b>Raitng:</b> ${info.restaurant.user_rating.aggregate_rating}</p>`
+      ));
+      const [content] = info;
+      self.setContent(content);
       })
     .catch(err => {
       const error = "Data cannot be loaded.";

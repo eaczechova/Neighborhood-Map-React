@@ -30,7 +30,7 @@ class List extends Component {
     const { locations, isLoaded, openMarker } = this.props;
 
     //Gets value of selected location and passes it to markers filtering function
-    
+
     this.handleChange = (e) => {
       this.setState({ selectedValue: e.target.value });
       this.updateMarkers(e.target.value);
