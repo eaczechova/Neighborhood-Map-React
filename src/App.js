@@ -107,19 +107,24 @@ class App extends Component {
     self.setContent("Loading...");
 
     fetch(url, config)
-    .then(response => response.json())
-    .then( data => {
-      const start = data.nearby_restaurants;
-      let info = start.filter(info => info.restaurant.name === self.marker.title)
-      .map(info => (
+      .then( response => {
+        if (response.status !== 200) {
+          self.setContent("Sorry, but the data cannot be loaded.");
+          return;
+        }
+        response.json().then( data => {
+          const start = data.nearby_restaurants;
+          let info = start.filter(info => info.restaurant.name === self.marker.title)
+          .map(info => (
           `<h3><b>${info.restaurant.name}</b></h3>
           <p><b>Adderess:</b> ${info.restaurant.location.address}</p>
           <p><b>Cuisines:</b> ${info.restaurant.cuisines}</p>
           <p><b>Raitng:</b> ${info.restaurant.user_rating.aggregate_rating}</p>`
-      ));
-      const [content] = info;
-      self.setContent(content);
-      })
+        ));
+        const [content] = info;
+        self.setContent(content);
+      });
+    })
     .catch(err => {
       const error = "Data cannot be loaded.";
       self.setContent(error);
