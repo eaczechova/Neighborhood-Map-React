@@ -73,6 +73,9 @@ class App extends Component {
   /*
     Function opens marker's infowindow once clicked, uses selected marker's
     latlng information to created api url used to get loaction info;
+
+    Useful links:
+    https://stackoverflow.com/questions/34956479/how-do-i-setstate-for-nested-array
   */
 
   openMarker = (marker) => {
